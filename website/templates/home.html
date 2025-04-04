@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+  {% if user.is_authenticated %}
+  <div class="card shadow-lg mt-4">
+    <div class="card-header bg-dark text-white">
+      <h2 class="mb-0"><i class="bi bi-people-fill me-2"></i>Customer Records</h2>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Phone</th>
+              <th scope="col">Address</th>
+              <th scope="col">City</th>
+              <th scope="col">State</th>
+              <th scope="col">Zipcode</th>
+              <th scope="col">Created</th>
+              <th scope="col">ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if records %}
+              {% for record in records %}
+              <tr class="align-middle">
+                <td>{{ record.first_name }} {{ record.last_name }}</td>
+                <td>{{ record.email }}</td>
+                <td>{{ record.phone }}</td>
+                <td>{{ record.address }}</td>
+                <td>{{ record.city }}</td>
+                <td>{{ record.state }}</td>
+                <td>{{ record.zipcode }}</td>
+                <td>{{ record.created_at|date:"M d, Y" }}</td>
+                <td><a href="{% url 'record' record.id %}" class="btn btn-sm btn-outline-primary">{{ record.id }}</a></td>
+              </tr>
+              {% endfor %}
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-lg mt-5">
+        <div class="card-header bg-dark text-white text-center">
+          <h2 class="mb-0"><i class="bi bi-box-arrow-in-right me-2"></i>Login</h2>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" action="{% url 'home' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            <div class="mb-4">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">Login</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% endif %}
+</div>
+
+
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .container-fluid {
+    flex: 1;
+  }
+  
+  .table {
+    font-size: 0.95rem;
+  }
+  
+  .table th {
+    font-weight: 600;
+  }
+  
+  .table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+  
+  .card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .form-control {
+    padding: 12px;
+    border-radius: 6px;
+  }
+  
+  .btn-lg {
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+  
+  
+</style>
+
+{% endblock %}

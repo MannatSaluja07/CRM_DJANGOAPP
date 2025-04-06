@@ -1,4 +1,0 @@
-pytest
-pytest-django
-coverage
-flake8

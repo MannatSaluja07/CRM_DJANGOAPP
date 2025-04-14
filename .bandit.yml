@@ -1,0 +1,25 @@
+# .bandit.yml
+ 
+exclude_dirs:
+  - migrations
+  - env
+  - venv
+  - staticfiles
+  - tests
+ 
+exclude:
+  - "**/tests.py"                   # Exclude any tests.py
+  - "dcrm/settings.py"  # Settings file may contain false positives (like SECRET_KEY)
+ 
+skips:
+  - B106  # Ignore hardcoded password warnings (e.g., in settings.py)
+  - B101  # Ignore assert usage
+ 
+# Report only issues of medium severity or higher
+severity: "MEDIUM"
+ 
+# Only show high-confidence issues
+confidence: "HIGH"
+ 
+# Output format
+output_format: "screen"

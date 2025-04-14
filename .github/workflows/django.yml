@@ -1,34 +1,141 @@
 name: Django CI/CD Pipeline
-
+ 
 on:
+
   push:
-    branches: [ main ]
+
+    branches: [main]
+
   pull_request:
-    branches: [ main ]
 
+    branches: [main]
+ 
 env:
-  DJANGO_SETTINGS_MODULE: dcrm.settings
-  PYTHON_VERSION: "3.9"
 
+  DJANGO_SETTINGS_MODULE: dcrm.settings
+
+  PYTHON_VERSION: "3.9"
+ 
 jobs:
-  test:
+
+  source-stage:
+
+    name: Source Stage
+
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: Checkout Repository
+
+        uses: actions/checkout@v3
+ 
+  build-stage:
+
+    name: Build Stage
+
+    runs-on: ubuntu-latest
+
+    needs: source-stage
+ 
+    steps:
+
+      - name: Checkout Repository
+
+        uses: actions/checkout@v3
+ 
+      - name: Set up Python
+
+        uses: actions/setup-python@v4
+
+        with:
+
+          python-version: ${{ env.PYTHON_VERSION }}
+ 
+      - name: Install dependencies
+
+        run: |
+
+          python -m pip install --upgrade pip
+
+          pip install -r requirements.txt
+
+          pip install pytest pytest-django pylint pylint-django bandit
+ 
+  static-code-analysis:
+
+    name: Static Code Analysis (Pylint)
+
+    runs-on: ubuntu-latest
+
+    needs: build-stage
+
+    steps:
+
       - uses: actions/checkout@v3
 
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
+
         with:
+
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
+      - run: |
+
           pip install -r requirements.txt
+
+          pip install pylint pylint-django
+
+          pylint --rcfile=.pylintrc --disable=R,C website/ dcrm/ --fail-under=8.0
+ 
+  test-stage:
+
+    name: Test Stage (Pytest)
+
+    runs-on: ubuntu-latest
+
+    needs: build-stage
+
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+
+        with:
+
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - run: |
+
+          pip install -r requirements.txt
+
           pip install pytest pytest-django
 
-      - name: Run Django Tests with Pytest
-        run: |
-          python manage.py migrate
           pytest
+ 
+  security-analysis:
+
+    name: Security Analysis (Bandit)
+
+    runs-on: ubuntu-latest
+
+    needs: build-stage
+
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+
+        with:
+
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - run: |
+
+          pip install bandit
+
+          bandit -r website/ dcrm/ -c .bandit.yml --exit-zero
+
+ 
